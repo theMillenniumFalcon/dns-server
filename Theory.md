@@ -49,4 +49,7 @@ A typical uncached DNS lookup will involve both recursive and iterative queries.
 There is a difference between a recursive DNS resolver and a recursive query. The query refers the request made to the DNS resolver requiring the resolution of the query. A DNS recursive resolver is the computer that accepts a recursive query and processes the response by making the necessary requests.
 
 ## What are the different types of DNS queries?
-- 
+- In a typical DNS lookup threee types of queries occur. By using a combination of these queries, an optimal process for DNS resolution can result in a erduction of distance traveled. In an ideal situation cached record data will be available, allowing a DNS name server to return a non-recursive query.
+### 3 types of DNS qqueries:
+- Recursive query: In a recursive query, a DNS client requires that a DNS server (typically a DNS recursive resolver) will responds to a clinet with respond to the client with either the requested resource record or an error message if the resolver can't find the record.
+- Iterative query: In this situation the DNS client will allow a DNS server to return the best answer it can. If the queried DNS server does not have a match for the query name, it will return a referral to a DNS server authoritative for a lower level of the domain namespace. The DNS client will then make a query to the referral address.
