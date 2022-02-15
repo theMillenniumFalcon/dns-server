@@ -30,3 +30,23 @@
 ## What are the steps in a DNS lookup?
 - A user types 'example.com' into a web browser and the query travels into the Internet and is received by a DNS recursive resolver.
 - The resolver then queries a DNS root nameserver (.).
+- The root server then responds to the resolver with the adderess of a Top Level Domain (TLD) DNS server (such as .com or .net), which the information for its domains. When searching for example.com, our request is pointed toward the .com TLD.
+- The resolver then makes a request to the .com TLD.
+- The TLD server then responds with the IP adderess of the domain's nameserver, example.com
+- Lastly, the recursive  resolver sends a quwery to the domain's nameserver.
+- The IP address for example.com is then returned to the resolver from the nameserver.
+- The DNS resolver then responds to the web browser with the IP address of the domain requested initially.
+<br><hr>
+Once the 8 steps of the DNS lookup have returned the IP address for example.com, the browser is able to make the request for the web page:
+- The Browser makes the HTTP request to the IP address.
+- The server at the IP returns the webpage to the rendered in the browser.
+
+## What is a DNS resolver?
+- The Dns reolver is the forst step in the process of DNS lookup, and it is responsible for dealing with the client that made the initial request. The resolver initiates the queries that ultimately leads to the translation of the URL to th eappropriate IP address.
+```
+A typical uncached DNS lookup will involve both recursive and iterative queries.
+```
+There is a difference between a recursive DNS resolver and a recursive query. The query refers the request made to the DNS resolver requiring the resolution of the query. A DNS recursive resolver is the computer that accepts a recursive query and processes the response by making the necessary requests.
+
+## What are the different types of DNS queries?
+- 
