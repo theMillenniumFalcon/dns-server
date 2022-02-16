@@ -50,6 +50,17 @@ There is a difference between a recursive DNS resolver and a recursive query. Th
 
 ## What are the different types of DNS queries?
 - In a typical DNS lookup threee types of queries occur. By using a combination of these queries, an optimal process for DNS resolution can result in a erduction of distance traveled. In an ideal situation cached record data will be available, allowing a DNS name server to return a non-recursive query.
-### 3 types of DNS qqueries:
+### 3 types of DNS queries:
 - Recursive query: In a recursive query, a DNS client requires that a DNS server (typically a DNS recursive resolver) will responds to a clinet with respond to the client with either the requested resource record or an error message if the resolver can't find the record.
 - Iterative query: In this situation the DNS client will allow a DNS server to return the best answer it can. If the queried DNS server does not have a match for the query name, it will return a referral to a DNS server authoritative for a lower level of the domain namespace. The DNS client will then make a query to the referral address.
+- Non-recursive query: Typically this will occur when a DNS resolver client queries a DNS server for record that it has access to either because it's authoritative for the record or the record exists inside of its cache. Typically, a DNS server will cache DNS records to prevent additional consumption and load on upstream servers.
+
+## DNS caching and where it occurs?
+- The purpose of caching is to temporarily stored data in a location that results in improvements in performance and reliability for data requests. DNS caching involves storing data closer to the requesting client so that the DNS query can be resolved earlier and additional queries further down the DNS lookup chain can be avoided, thereby improving load times and reducing bandwidth/CPU consumption. The DNS data can be cached in a variety of locations, each of which will store DNS records for a set amount of time determined by the time-to-live(TTL).
+
+## Browser DNS caching:
+- Modern web browsers are designed to store cached data for a set amount of time for obvious reasons. The closer the DNS caching occurs to the web browser, the fewer processing steps must be taken in order to check the cache and make the correct requests to an IP address. Browser cache is the first cache that is checked when a request is made.
+
+## Operating System level DNS caching:
+- The Operating System level DNS caching is the second and last stop before a DNS query leaves the machine. The process inside your operating system that is designed to handle this query is commonly called a “stub resolver” or DNS client. When a stub resolver gets a request from an application, it first checks its own cache to see if it has the record. If it does not, it then sends a DNS query (with a recursive flag set), outside the local network to a DNS recursive resolver inside the Internet service Provider (ISP).
+- When the recursive resolver inside the ISP recieves a DNS query, like all previous steps, it will also check to see if the requested host-to-IP adderess translation is already stored inside its persistence layer.
