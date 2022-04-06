@@ -4,6 +4,8 @@ import socket
 port = 53 # as DNS operates on port 53
 ip = '127.0.0.1'
 
+# socket.AF_INET -> as we are using IPV4
+# socket.SOCK_DGRAM -> as we are making a UDP server
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((ip, port))
 
