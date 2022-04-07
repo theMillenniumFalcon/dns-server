@@ -1,5 +1,5 @@
 # TO create a UDP or TCP connection
-import socket
+import socket, glob, json
 from sys import byteorder
 
 port = 53 # as DNS operates on port 53
@@ -9,6 +9,20 @@ ip = '127.0.0.1'
 # socket.SOCK_DGRAM -> as we are making a UDP server
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((ip, port))
+
+def loadZones():
+    
+    jsonZone = {}
+    zoneFiles = glob.glob('zones/*.zone')
+    
+    for zone in zoneFiles:
+        with open(zone) as zoneData:
+            data = json.load(zoneData)
+            zoneName = data["$origin"]
+            jsonZone[zoneName] = data
+        return jsonZone
+
+zoneData = loadZones()
 
 def getFlags(flags):
     
@@ -41,7 +55,8 @@ def getQuestionDomain(data):
     
     for byte in data:
         if state == 1:
-            domainString += chr(byte)
+            if byte != 0:
+                domainString += chr(byte)
             x += 1
             if x == expectedLength:
                 domainParts.append(domainString)
@@ -54,21 +69,32 @@ def getQuestionDomain(data):
         else:
             state = 1
             expectedLength = byte
-        x += 1
         y += 1
         
-    questionType = data[y+1:y+3]
-    print(questionType)
+    questionType = data[y:y+2]
         
     return (domainParts, questionType)
+
+def getZone(domain):
+    global zoneData
+    
+    zoneName = '.'.join(domain)
+    return zoneData[zoneName]
+
+def getRecs(data):
+    domain, questiontype = getQuestionDomain(data)
+    qt = ''
+    if questiontype == b'\x00\x01':
+        qt = 'a'
+    
+    zone = getZone(domain)
+    
+    return (zone[qt], qt, domain)
 
 def buildresponse(data):
     
     # Transaction ID
     TransactionID = data[:2]
-    TID = ''
-    for byte in TransactionID:
-        TID += hex(byte)[2:]
     
     # Get the Flags
     Flags = getFlags(data[2:4])
@@ -77,9 +103,17 @@ def buildresponse(data):
     QDCOUNT = b'\x00\x01'
     
     # Answer Count
-    getQuestionDomain(data[12:])
+    AnswerCount = len(getRecs(data[12:])[0]).to_bytes(2, byteorder='big')
     
-    print(Flags)
+    # NameServer Count
+    NameServerCount = (0).to_bytes(2, byteorder='big')
+    
+    # Additional Count
+    AdditionalCount = (0).to_bytes(2, byteorder='big')
+    
+    dnsHeader = TransactionID + Flags + QDCOUNT + AnswerCount + NameServerCount + AdditionalCount
+    
+    print(dnsHeader)
 
 while 1: 
     data, addr = sock.recvfrom(512)
