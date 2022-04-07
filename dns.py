@@ -42,6 +42,8 @@ def buildresponse(data):
     # Get the Flags
     Flags = getFlags(data[2:4])
     
+    # Question Count
+    
     print(Flags)
 
 while 1: 
