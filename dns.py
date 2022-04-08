@@ -91,7 +91,41 @@ def getRecs(data):
     
     return (zone[qt], qt, domain)
 
-def buildresponse(data):
+def buildQuestion(domainName, recType):
+    qbytes = b''
+    
+    for part in domainName:
+        length = len(part)
+        qbytes += bytes([length])
+        
+        for char in part:
+            qbytes += ord(char).to_bytes(1, byteorder='big')
+        
+    if recType == 'a':
+        qbytes += (1).to_bytes(2, byteorder='big')
+            
+    qbytes += (1).to_bytes(2, byteorder='big')
+        
+    return qbytes    
+
+def recToBytes(domainName, recType, recttl, recval):
+    rbytes = b'\xc0\x0c'
+    
+    if recType == 'a':
+        rbytes += rbytes + bytes([0]) + bytes([1])
+        
+    rbytes = rbytes + bytes([0]) + bytes([1])
+    
+    rbytes += int(recttl).to_bytes(4, byteorder='big')
+    
+    if recType == 'a':
+        rbytes = rbytes + bytes([0]) + bytes([4])
+        
+        for part in recval.split('.'):
+            rbytes += bytes([int(part)])
+    return rbytes
+      
+def buildResponse(data):
     
     # Transaction ID
     TransactionID = data[:2]
@@ -113,9 +147,20 @@ def buildresponse(data):
     
     dnsHeader = TransactionID + Flags + QDCOUNT + AnswerCount + NameServerCount + AdditionalCount
     
-    print(dnsHeader)
+    # Create DNS body
+    dnsBody = b''
+    
+    # get answer for the query
+    records, recType = domainName = getRecs(data[12:])
+    
+    dnsQuestion = buildQuestion(domainName, recType)
+    
+    for record in records:
+        dnsBody += recToBytes(domainName, recType, record["ttl"], record["value"])
+    
+    return dnsHeader + dnsQuestion + dnsBody
 
 while 1: 
     data, addr = sock.recvfrom(512)
-    r = buildresponse(data)
+    r = buildResponse(data)
     sock.sendto(r, addr)
